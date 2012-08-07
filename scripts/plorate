@@ -1,0 +1,61 @@
+#! /usr/bin/env python
+
+import argparse
+import json
+
+import jinja2
+
+
+# Build global enviroment for template lookup.
+env = jinja2.Environment(loader=jinja2.PackageLoader('plorate', 'templates'))
+
+
+def scatter(args):
+    template = env.get_template('scatter.html')
+    with open(args.data_file) as fp:
+        data = json.load(fp)
+    str = template.render(data=json.dumps(data), width=args.width,
+                          height=args.height)
+    return str
+
+
+def time_series(args):
+    template = env.get_template('timeseries.html')
+    with open(args.data_file) as fp:
+        data = json.load(fp)
+    str = template.render(data=json.dumps(data), width=args.width,
+                          height=args.height)
+    return str
+
+
+def make_arg_parser():
+    # Build argument parser for the command line.
+    parser = argparse.ArgumentParser(description='make html plots')
+    parser.add_argument('--target-file', dest='target_file', help='target file')
+    parser.add_argument('--width', dest='width', default=500,
+        help='width of the plot in pixels')
+    parser.add_argument('--height', dest='height', default=500,
+        help='height of the plot in pixels')
+
+    subparsers = parser.add_subparsers()
+
+
+    parser_scatter = subparsers.add_parser('scatter', help='make scatter plots')
+    parser_scatter.add_argument('--data-file', dest='data_file',
+        help='file in which the data lives')
+    parser_scatter.set_defaults(func=scatter)
+
+    parser_time_series= subparsers.add_parser('time-series',
+        help='make time series plots')
+    parser_time_series.add_argument('--data-file', dest='data_file',
+        help='file in which the data lives')
+    parser_time_series.set_defaults(func=time_series)
+
+    return parser
+
+
+if __name__ == '__main__':
+    args = make_arg_parser().parse_args()
+    html = args.func(args)
+    with open(args.target_file, 'w') as fp:
+        fp.write(html)

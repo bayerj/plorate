@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block plot_code %}
+
+        scatter(d3.select("body"), data, {{ width }}, {{ height }})
+
+{% endblock %}
