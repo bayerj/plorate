@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block plot_code %}
+
+        console.log(data.length)
+        for row in data
+            timeseries(d3.select("body"), [i[0] for i in row] , 200, 200)
+
+{% endblock %}
