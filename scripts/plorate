@@ -28,6 +28,14 @@ def time_series(args):
     return str
 
 
+def hinton(args):
+    template = env.get_template('hinton.html')
+    with open(args.data_file) as fp:
+        data = json.load(fp)
+    str = template.render(data=json.dumps(data), width=args.width)
+    return str
+
+
 def time_series_filter(args):
     template = env.get_template('timeseries-filter.html')
     with open(args.data_file) as fp:
@@ -60,11 +68,17 @@ def make_arg_parser():
         help='file in which the data lives')
     parser_time_series.set_defaults(func=time_series)
 
-    parser_time_series= subparsers.add_parser('time-series-filter',
+    parser_time_series_filter = subparsers.add_parser('time-series-filter',
         help='make filter plots for time series')
-    parser_time_series.add_argument('--data-file', dest='data_file',
+    parser_time_series_filter.add_argument('--data-file', dest='data_file',
         help='file in which the data lives')
-    parser_time_series.set_defaults(func=time_series_filter)
+    parser_time_series_filter.set_defaults(func=time_series_filter)
+
+    parser_hinton= subparsers.add_parser('hinton',
+        help='make hinton diagram')
+    parser_hinton.add_argument('--data-file', dest='data_file',
+        help='file in which the data lives')
+    parser_hinton.set_defaults(func=hinton)
 
     return parser
 

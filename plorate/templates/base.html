@@ -140,6 +140,60 @@
                 .attr("transform", "translate(0," + (height - padding) + ")")
                 .call(axis_x)
 
+        hinton = (target, data, width) ->
+            n_rows = data.length
+            n_columns = data[0].length
+            # TODO: check that all entries of data have the same length
+            size = 1.0 * width / n_columns
+            height = n_rows * size
+            padding = 10
+            max_size = size * 0.8
+            min_size = size * 0.1
+
+            mini = d3.min((d3.min(i) for i in data))
+            maxi = d3.max((d3.max(i) for i in data))
+
+            grid_points = []
+            for row, i in data
+                for cell, j in row
+                    cell = cell / maxi
+                    abs_cell = Math.abs(cell)
+                    grid_points.push({
+                        'y': i - abs_cell / 2 + .5,
+                        'x': j - abs_cell / 2 + .5, 
+                        'color': if cell > 0 then 'white' else 'black',
+                        'value': cell,
+                        'abs_value': Math.abs(cell)})
+            
+            grid = target.append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("class", "chart")
+                .style("background", "#888")
+
+            scale_y = d3.scale.linear()
+               .domain([0, n_rows])
+               .range([padding, height - padding])
+
+            scale_x = d3.scale.linear()
+               .domain([0, n_columns])
+               .range([padding, width - padding])
+
+            scale_size = d3.scale.linear()
+               .domain([0, 1])
+               .range([min_size, max_size])
+
+            rects = grid.selectAll(".rect")
+                .data(grid_points)
+              .enter().append("svg:rect")
+                .attr("class", "cell")
+                .attr("value", (d) -> d.value)
+                .attr("y", (d) -> scale_y(d.y))
+                .attr("x", (d) -> scale_x(d.x))
+                .attr("width", (d) -> scale_size(d.abs_value))
+                .attr("height", (d) -> scale_size(d.abs_value))
+                .style("fill", (d) -> d.color)
+
         {% block plot_code %}
         {% endblock %}
 
