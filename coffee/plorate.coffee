@@ -320,6 +320,176 @@ sequence = () ->
     return chart
 
 
+bar = () ->
+    width = 800
+    height = 400
+    bar_margin = 1
+    margin = {top: 50, right: 50, bottom: 50, left: 50}
+    y_scale = d3.scale.linear()
+    x_scale = d3.scale.linear()
+    x = (d, i) -> +i
+    y = (d, i) -> +d
+    bar_class = 'bar'
+    on_mouseover = () -> null
+    on_mouseout = () -> null
+    y_axis = d3.svg.axis().scale(y_scale).orient("left").ticks(5)
+    labels = null
+
+    chart = (selection) ->
+        selection.each((data) ->
+            labels = d3.range(data.length) if labels == null
+            # Update scales.
+            y_extent = [0, d3.max(y(i) for i in data)]
+            y_scale
+                .range([height - margin.top - margin.bottom, 0])
+                .domain(y_extent)
+
+            x_extent = [0, data.length]
+            x_scale
+                .domain(x_extent)
+                .range([0, width - margin.right - margin.left])
+
+            # Select the svg element, if it exists.
+            svg = d3.select(this).selectAll("svg").data([data])
+
+            # Otherwise, create the skeletal chart.
+            g_enter = svg.enter()
+                .append("svg")
+                .append("g")
+            g_enter.append("g").attr("class", "y axis")
+
+            svg
+                .attr("width", width)
+                .attr("height", height)
+
+            g = svg.select("g")
+                .attr("transform",
+                      "translate(" + margin.left + "," + margin.top + ")")
+
+            bar_width = (x_scale(data.length) - x_scale(0)) / data.length - bar_margin
+
+            g.selectAll("rect")
+                .data(data)
+              .enter().append("rect")
+                .attr("class", bar_class)
+                .attr("x", (d, i) -> x_scale(x(d, i)))
+                .attr("y", (d, i) -> y_scale(y(d, i)))
+                .attr("width", (d, i) -> bar_width)
+                .attr("height", (d, i) -> height - margin.bottom - margin.top - y_scale(y(d, i)))
+                .on("mouseover", on_mouseover)
+                .on("mouseout", on_mouseout)
+
+            g.selectAll("text")
+                .data(data)
+              .enter().append('text')
+                .attr("x", (d, i) -> x_scale(x(d, i)))
+                .attr("y", (d, i) -> y_scale(y(d, i)))
+                .text((d, i) -> labels[i])
+
+
+            g.select(".y.axis")
+                .attr("transform", "translate(" + x_scale.range()[0] + ", 0)")
+                .call(y_axis)
+
+        )
+
+
+    # Properties.
+
+    chart.width = (args...) -> 
+        if not args.length
+            return width
+        else
+            width = args[0]
+            return chart
+
+    chart.height= (args...) -> 
+        if not args.length
+            return height
+        else
+            height = args[0]
+            return chart
+
+    chart.margin = (args...) -> 
+        if not args.length
+            return margin 
+        else
+            margin = args[0]
+            return chart
+
+    chart.x_scale= (args...) -> 
+        if not args.length
+            return x_scale 
+        else
+            x_scale = args[0]
+            return chart
+
+    chart.y_scale= (args...) -> 
+        if not args.length
+            return y_scale 
+        else
+            y_scale = args[0]
+            return chart
+
+    chart.x_axis= (args...) -> 
+        if not args.length
+            return x_axis 
+        else
+            x_axis = args[0]
+            return chart
+
+    chart.y_axis= (args...) -> 
+        if not args.length
+            return y_axis 
+        else
+            y_axis = args[0]
+            return chart
+
+    chart.x = (args...) -> 
+        if not args.length
+            return x 
+        else
+            x = args[0]
+            return chart
+
+    chart.y = (args...) -> 
+        if not args.length
+            return y 
+        else
+            y = args[0]
+            return chart
+
+    chart.bar_class = (args...) -> 
+        if not args.length
+            return bar_class 
+        else
+            bar_class = args[0]
+            return chart
+
+    chart.on_mouseover = (args...) -> 
+        if not args.length
+            return on_mouseover 
+        else
+            on_mouseover = args[0]
+            return chart
+
+    chart.on_mouseout = (args...) -> 
+        if not args.length
+            return on_mouseout 
+        else
+            on_mouseout = args[0]
+            return chart
+
+    chart.labels = (args...) -> 
+        if not args.length
+            return labels 
+        else
+            labels = args[0]
+            return labels
+    return chart
+
+
 @plorate = {}
 plorate.scatter = scatter
 plorate.sequence = sequence
+plorate.bar = bar
