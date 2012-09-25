@@ -25,6 +25,17 @@
                 fill: red;
                 opacity: 1;
             }
+
+            .sequence {
+                opacity: 0.5;
+                stroke-width: 2px;
+            }
+
+            .sequence-current {
+                opacity: 1;
+                stroke-width: 2.5px;
+            }
+
             path {
                 stroke: black;
                 stroke-width: 2px;
@@ -49,21 +60,17 @@
 </html>
 
 <script type="text/coffeescript">
-    chart = plorate.scatter()
-
-    chart.point_class('point')
-    chart.on_mouseover((d, i) -> 
-        d3.select(this)
-            .attr('r', 5)
-            .attr('class', 'point-current'))
-    
-    chart.on_mouseout((d, i) -> d3.select(this)
-        .attr('r', chart.radius())
-        .attr('class', chart.point_class()))
+    chart = plorate.sequence()
+    chart.on_mouseover(() -> 
+            console.log 'mouseover'
+            d3.select(this).attr('class', 'sequence-current'))
+    chart.on_mouseout(() -> d3.select(this).attr('class', chart.sequence_class()))
 
     d3.csv('normalcloud.csv', (data) ->
+        t1 = (+i.x for i in data.slice(0, 10))
+        t2 = (+i.y for i in data.slice(0, 15))
         d3.select('#example')
-            .datum(data)
+            .datum([t1, t2])
             .call(chart)
     )
 
